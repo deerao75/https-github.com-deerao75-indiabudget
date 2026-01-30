@@ -12,6 +12,8 @@
         background-color: #f3f4f6;
         margin: 0;
         padding: 0;
+        /* Prevent body-level horizontal overflow */
+        overflow-x: hidden;
       }
       .font-serif {
         font-family: 'Playfair Display', serif;
@@ -28,7 +30,8 @@
         background: white;
         box-shadow: 0 0 10px rgba(0,0,0,0.1);
         position: relative;
-        overflow: hidden;
+        /* Ensure content doesn't bleed out on mobile */
+        overflow-x: hidden;
         box-sizing: border-box;
       }
 
@@ -70,6 +73,7 @@
           background-color: white !important;
           margin: 0 !important;
           padding: 0 !important;
+          overflow: visible !important;
         }
 
         .no-print, nav, button {
