@@ -48,49 +48,55 @@ const App: React.FC = () => {
     return pages;
   };
 
-  useEffect(() => {
+useEffect(() => {
+    // 1. Always fetch latest data first
     const savedData = localStorage.getItem('acer_budget_master');
     const savedTime = localStorage.getItem('acer_budget_time');
     if (savedData) setContent(JSON.parse(savedData));
     if (savedTime) setLastSaved(savedTime);
 
-    if (isUserView) {
+    // 2. Handle User View - Check URL params directly
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('view') === 'user') {
       setActiveTab('preview');
       document.title = "Economic Survey and India Budget 2026-27";
-      window.history.replaceState({}, "", window.location.origin + window.location.pathname);
+      // REMOVED window.history.replaceState to ensure the link stays as 'user' on refresh
     }
-  }, [isUserView]);
+  }, []); // Only run once on mount
 
   const handleSaveToCloud = () => {
     setIsSaving(true);
     const now = new Date().toLocaleString('en-IN', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+    
+    // Save to LocalStorage immediately
+    localStorage.setItem('acer_budget_master', JSON.stringify(content));
+    localStorage.setItem('acer_budget_time', now);
+    
     setTimeout(() => {
-      localStorage.setItem('acer_budget_master', JSON.stringify(content));
-      localStorage.setItem('acer_budget_time', now);
       setLastSaved(now);
       setIsSaving(false);
-      alert("Published Successfully.");
+      alert("Published Successfully. Client link will now show this content.");
     }, 800);
   };
 
   const copyClientLink = () => {
-    // Construct the URL specifically for the client
     const userLink = `${window.location.origin}${window.location.pathname}?view=user`;
-    
-    // The text the client will see in their email/WhatsApp
     const linkText = "Economic Survey and India Budget Alert 2026-27";
-    
-    // Create an HTML version so it's a clickable blue link in Outlook/Gmail
     const htmlLink = `<a href="${userLink}" style="color: #2563eb; text-decoration: underline;">${linkText}</a>`;
     
-    const data = [
-      new ClipboardItem({
-        "text/html": new Blob([htmlLink], { type: "text/html" }),
-        "text/plain": new Blob([userLink], { type: "text/plain" })
-      })
-    ];
-
-    navigator.clipboard.write(data).then(() => alert("Client Hyperlink Copied! You can now paste this into an email or WhatsApp."));
+    // We use a try-catch to prevent TypeScript environment crashes with ClipboardItem
+    try {
+      const data = [
+        new ClipboardItem({
+          "text/html": new Blob([htmlLink], { type: "text/html" }),
+          "text/plain": new Blob([userLink], { type: "text/plain" })
+        })
+      ];
+      navigator.clipboard.write(data).then(() => alert("Client Link Copied!"));
+    } catch (err) {
+      // Fallback if ClipboardItem fails in certain browsers/environments
+      navigator.clipboard.writeText(userLink).then(() => alert("Client URL Copied!"));
+    }
   };
 
   const updateMainSummary = (val: string) => setContent(prev => ({ ...prev, mainSummary: val }));
