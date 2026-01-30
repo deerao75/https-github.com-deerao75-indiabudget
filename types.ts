@@ -14,6 +14,7 @@ export interface TaxSection {
 
 export interface BudgetContent {
   mainSummary: string;
+  economicSurvey: TaxSection; // Add this line
   directTax: TaxSection;   // Changed from BudgetSection
   indirectTax: TaxSection; // Changed from BudgetSection
 }
