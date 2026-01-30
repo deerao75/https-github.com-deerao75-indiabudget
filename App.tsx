@@ -222,6 +222,18 @@ const App: React.FC = () => {
                   <h2 className="text-3xl font-serif font-bold text-slate-900">{content[section].title}</h2>
                 </div>
                 <DetailSection items={content[section].items} />
+                {/* NEW: STANDARD BUDGET DISCLAIMER (Only on the last page) */}
+                {section === 'indirectTax' && (
+                  <div className="mt-auto pt-10 border-t border-slate-100">
+                    <p className="text-[8px] leading-relaxed text-slate-400 text-justify italic">
+                      <strong>Disclaimer:</strong> This bulletin has been prepared by {COMPANY_NAME} for general information purposes only and does not constitute professional advice. 
+                      While every effort has been made to ensure the accuracy of the information based on the Union Budget 2026-27 and Economic Survey 
+                      presentations, tax laws are subject to change and varied interpretations. Readers are advised to consult with a qualified 
+                      tax professional before taking any action based on the content of this alert. {COMPANY_NAME} accepts no liability for 
+                      any loss arising from the use of this information.
+                    </p>
+                  </div>
+                )}
               </PageWrapper>
             </div>
           ))}
