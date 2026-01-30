@@ -1,15 +1,14 @@
-
 import React from 'react';
-import { DetailItem } from '../types';
+import { TaxItem } from '../types';
 
 interface DetailSectionProps {
-  items: DetailItem[];
+  items: TaxItem[];
 }
 
 export const DetailSection: React.FC<DetailSectionProps> = ({ items }) => {
   return (
     <div className="relative">
-      {/* Central Vertical Line - Absolute positioned to span the full height of the container */}
+      {/* Central Vertical Line */}
       <div className="absolute left-1/2 top-0 bottom-0 w-[1px] bg-slate-200 -translate-x-1/2 hidden sm:block"></div>
       
       <div className="grid grid-cols-2 gap-x-16 gap-y-12 items-start">
@@ -18,7 +17,12 @@ export const DetailSection: React.FC<DetailSectionProps> = ({ items }) => {
             <h4 className="font-extrabold text-slate-900 text-[14px] uppercase tracking-wider mb-2 border-b-2 border-slate-900 inline-block w-max pb-1">
               {item.title}
             </h4>
-            <div className="text-[12px] text-slate-600 leading-relaxed text-justify hyphens-auto whitespace-pre-wrap">
+            
+            {/* CHANGE MADE HERE: 
+               1. Removed 'hyphens-auto' and added 'hyphens-none' to stop word cutting.
+               2. Added 'break-words' to ensure long strings don't overlap the central line.
+            */}
+            <div className="text-[12px] text-slate-600 leading-relaxed text-justify hyphens-none break-words whitespace-pre-wrap">
               {item.content}
             </div>
           </div>
