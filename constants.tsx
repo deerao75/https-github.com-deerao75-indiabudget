@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 
 export const COMPANY_NAME = "Acer Tax & Corporate Services LLP";
 export const BUDGET_TITLE = "India Budget 2026-27";
-export const LOGO_URL = "/logo.png";
+export const LOGO_URL = "/indiabudgetnew/logo.png";
 
 export const Logo: React.FC = () => {
   const [imgError, setImgError] = useState(false);

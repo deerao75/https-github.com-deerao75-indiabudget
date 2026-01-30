@@ -1,4 +1,3 @@
-
 export interface DetailItem {
   id: string;
   title: string;
@@ -6,7 +5,8 @@ export interface DetailItem {
   imageUrl?: string;
 }
 
-export interface BudgetSection {
+// Rename BudgetSection to TaxSection to match App.tsx logic
+export interface TaxSection {
   title: string;
   summary: string;
   items: DetailItem[];
@@ -14,6 +14,6 @@ export interface BudgetSection {
 
 export interface BudgetContent {
   mainSummary: string;
-  directTax: BudgetSection;
-  indirectTax: BudgetSection;
+  directTax: TaxSection;   // Changed from BudgetSection
+  indirectTax: TaxSection; // Changed from BudgetSection
 }

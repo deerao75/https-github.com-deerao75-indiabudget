@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { PageWrapper } from './components/PageWrapper';
 import { DetailSection } from './components/DetailSection';
 import { BudgetContent } from './types';
-import { BUDGET_TITLE } from './constants';
+import { BUDGET_TITLE, COMPANY_NAME } from './constants';
 
 const INITIAL_CONTENT: BudgetContent = {
   mainSummary: "The Union Budget 2026-27 represents a strategic blueprint for India's aspirations of becoming a $5 trillion economy. It strikes a fine balance between fiscal consolidation and aggressive capital expenditure. A significant thrust has been provided to the green energy transition and digital public infrastructure. For the individual taxpayer, the rationalization of tax slabs under the new regime offers a tangible increase in disposable income. On the corporate side, the extension of the sunset clause for manufacturing incentives demonstrates the government's commitment to 'Make in India'. This bulletin provides an in-depth analysis of these transformative changes.",
@@ -28,26 +28,36 @@ const App: React.FC = () => {
   const [content, setContent] = useState<BudgetContent>(INITIAL_CONTENT);
   const [activeTab, setActiveTab] = useState<'preview' | 'edit'>('preview');
   const [isSaving, setIsSaving] = useState(false);
+  const [lastSaved, setLastSaved] = useState<string>("");
   
-  // Detect if user is in "User View" mode via URL parameter
   const isUserView = new URLSearchParams(window.location.search).get('view') === 'user';
 
-  // Load saved content from localStorage on startup
   useEffect(() => {
     const savedData = localStorage.getItem('acer_budget_master');
-    if (savedData) {
-      setContent(JSON.parse(savedData));
-    }
+    const savedTime = localStorage.getItem('acer_budget_time');
+    
+    if (savedData) setContent(JSON.parse(savedData));
+    if (savedTime) setLastSaved(savedTime);
+
     if (isUserView) {
       setActiveTab('preview');
+      document.title = "Acer Tax India Budget 2025-26 Alert";
+      // Masks the URL so ?view=user disappears
+      const cleanURL = window.location.origin + window.location.pathname;
+      window.history.replaceState({}, "Acer Tax India Budget 2025-26 Alert", cleanURL);
     }
   }, [isUserView]);
 
   const handleSaveToCloud = () => {
     setIsSaving(true);
-    // Simulating a cloud sync. Replace with actual API call if using a database.
+    const now = new Date().toLocaleString('en-IN', { 
+      day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' 
+    });
+    
     setTimeout(() => {
       localStorage.setItem('acer_budget_master', JSON.stringify(content));
+      localStorage.setItem('acer_budget_time', now);
+      setLastSaved(now);
       setIsSaving(false);
       alert("Content saved successfully. All admins will now see these changes.");
     }, 800);
@@ -55,18 +65,12 @@ const App: React.FC = () => {
 
   const copyClientLink = () => {
     const userLink = `${window.location.origin}${window.location.pathname}?view=user`;
-    
-    // Try to copy to clipboard automatically
     navigator.clipboard.writeText(userLink).then(() => {
-      // Also show the link in a popup so the admin can see/copy it manually
       window.prompt("Client Link Generated! Copy this link to share:", userLink);
     }).catch(() => {
-      // Fallback if clipboard is blocked by browser security
       window.prompt("Copy this link to share with clients:", userLink);
     });
   };
-
-  const handlePrint = () => window.print();
 
   const updateMainSummary = (val: string) => setContent(prev => ({ ...prev, mainSummary: val }));
   
@@ -112,7 +116,7 @@ const App: React.FC = () => {
       <nav className="no-print sticky top-0 z-50 bg-white border-b border-slate-200 px-8 py-4 flex justify-between items-center shadow-md">
         <div className="flex items-center gap-6">
           <div>
-            <h1 className="text-xl font-bold text-slate-800 tracking-tight leading-none">Acer Budget Alert</h1>
+            <h1 className="text-xl font-bold text-slate-800 tracking-tight leading-none uppercase">Acer Budget Alert</h1>
             <p className="text-[10px] text-slate-400 uppercase tracking-widest font-bold mt-1">
               {isUserView ? 'Strategic Insight Portal' : 'Admin Control Center'}
             </p>
@@ -155,10 +159,7 @@ const App: React.FC = () => {
               </button>
             </>
           )}
-          
-          <button onClick={handlePrint} className="px-8 py-2.5 bg-slate-900 text-white rounded-xl text-sm font-bold hover:bg-slate-800 flex items-center gap-2">
-            Print PDF
-          </button>
+          {lastSaved && <span className="text-[10px] text-slate-400 font-bold uppercase">Updated: {lastSaved}</span>}
         </div>
       </nav>
 
