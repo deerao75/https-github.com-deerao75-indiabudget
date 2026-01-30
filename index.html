@@ -12,8 +12,7 @@
         background-color: #f3f4f6;
         margin: 0;
         padding: 0;
-        /* Prevent body-level horizontal overflow */
-        overflow-x: hidden;
+        overflow-x: hidden; /* Prevents side-scrolling on mobile */
       }
       .font-serif {
         font-family: 'Playfair Display', serif;
@@ -21,66 +20,70 @@
 
       /* Responsive Screen View styling */
       .a4-page {
-        /* Mobile First: Use percentage width */
         width: 95%; 
-        max-width: 210mm; /* Lock to A4 width on Desktop */
+        max-width: 210mm;
         min-height: 297mm;
-        padding: 5vw; /* Scaling padding for mobile */
+        padding: 6vw; /* Slightly more padding for breathing room */
         margin: 10px auto;
         background: white;
         box-shadow: 0 0 10px rgba(0,0,0,0.1);
         position: relative;
-        /* Ensure content doesn't bleed out on mobile */
-        overflow-x: hidden;
-        box-sizing: border-box;
+        overflow-x: hidden; /* Extra safety for child elements */
+        box-sizing: border-box; /* Includes padding in width calculation */
       }
 
-      /* Desktop specific padding adjustment */
+      /* Desktop specific padding */
       @media (min-width: 1024px) {
         .a4-page {
           padding: 20mm;
         }
       }
 
-      /* Fix for the 3-column grid on mobile */
+      /* Mobile-specific Fixes */
       @media (max-width: 768px) {
-        .grid-cols-3 {
-          grid-template-columns: 1fr !important; /* Stack cards vertically on phones */
-          gap: 1.5rem !important;
+        /* Centering the Top Heading and Subtext */
+        .a4-page h2, 
+        .a4-page p {
+          text-align: center !important;
         }
         
-        /* Adjust Hero text size for mobile */
+        .a4-page .px-8.py-6 {
+          padding-left: 1rem !important;
+          padding-right: 1rem !important;
+        }
+
+        .grid-cols-3 {
+          grid-template-columns: 1fr !important;
+          gap: 1.25rem !important;
+        }
+        
+        /* Heading size and centering */
         .a4-page h2 {
-          font-size: 1.75rem !important;
-          line-height: 1.2 !important;
+          font-size: 1.6rem !important;
+          line-height: 1.3 !important;
+          margin-left: auto;
+          margin-right: auto;
         }
       }
 
       @media print {
-        /* 1. Reset everything to basic blocks for the printer */
         * {
           -webkit-print-color-adjust: exact !important;
           print-color-adjust: exact !important;
         }
-
-        /* 2. Remove standard browser headers/footers */
         @page {
           size: A4;
           margin: 0;
         }
-
         body {
           background-color: white !important;
           margin: 0 !important;
           padding: 0 !important;
           overflow: visible !important;
         }
-
         .no-print, nav, button {
           display: none !important;
         }
-
-        /* 3. HARD-LOCK the A4 page size for PDF output only */
         .a4-page {
           width: 210mm !important;
           height: 296.8mm !important; 
@@ -93,16 +96,12 @@
           overflow: hidden !important; 
           position: relative !important;
         }
-
-        /* 4. Force sections to stay whole */
         section, .group, .mb-14, .DetailSection > div {
           page-break-inside: avoid !important;
           break-inside: avoid !important;
           display: block !important;
           width: 100% !important;
         }
-
-        /* 5. Handle the 3 columns in print */
         .grid {
           display: grid !important;
           grid-template-columns: repeat(3, 1fr) !important;
