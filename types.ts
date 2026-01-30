@@ -1,20 +1,20 @@
-export interface DetailItem {
+export interface TaxItem {
   id: string;
   title: string;
   content: string;
   imageUrl?: string;
 }
 
-// Rename BudgetSection to TaxSection to match App.tsx logic
+// Renamed items from DetailItem[] to TaxItem[]
 export interface TaxSection {
   title: string;
   summary: string;
-  items: DetailItem[];
+  items: TaxItem[];
 }
 
 export interface BudgetContent {
   mainSummary: string;
-  economicSurvey: TaxSection; // Add this line
-  directTax: TaxSection;   // Changed from BudgetSection
-  indirectTax: TaxSection; // Changed from BudgetSection
+  economicSurvey: TaxSection;
+  directTax: TaxSection;
+  indirectTax: TaxSection;
 }
