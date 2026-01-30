@@ -2,17 +2,55 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Acer Tax India Budget 2025-26 Alert</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0" />
+    <title>Economic Survey and India Budget 2026-27</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
     <style>
       body {
         font-family: 'Inter', sans-serif;
         background-color: #f3f4f6;
+        margin: 0;
+        padding: 0;
       }
       .font-serif {
         font-family: 'Playfair Display', serif;
+      }
+
+      /* Responsive Screen View styling */
+      .a4-page {
+        /* Mobile First: Use percentage width */
+        width: 95%; 
+        max-width: 210mm; /* Lock to A4 width on Desktop */
+        min-height: 297mm;
+        padding: 5vw; /* Scaling padding for mobile */
+        margin: 10px auto;
+        background: white;
+        box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        position: relative;
+        overflow: hidden;
+        box-sizing: border-box;
+      }
+
+      /* Desktop specific padding adjustment */
+      @media (min-width: 1024px) {
+        .a4-page {
+          padding: 20mm;
+        }
+      }
+
+      /* Fix for the 3-column grid on mobile */
+      @media (max-width: 768px) {
+        .grid-cols-3 {
+          grid-template-columns: 1fr !important; /* Stack cards vertically on phones */
+          gap: 1.5rem !important;
+        }
+        
+        /* Adjust Hero text size for mobile */
+        .a4-page h2 {
+          font-size: 1.75rem !important;
+          line-height: 1.2 !important;
+        }
       }
 
       @media print {
@@ -38,17 +76,17 @@
           display: none !important;
         }
 
-        /* 3. The 'Container Fix' - lock the A4 page size */
+        /* 3. HARD-LOCK the A4 page size for PDF output only */
         .a4-page {
           width: 210mm !important;
-          height: 296.8mm !important; /* Fixed A4 height to prevent "all over the page" */
+          height: 296.8mm !important; 
           margin: 0 auto !important;
           padding: 20mm !important;
           page-break-after: always !important;
           break-after: always !important;
           box-shadow: none !important;
           display: block !important;
-          overflow: hidden !important; /* Crucial: stops content from bleeding into next page */
+          overflow: hidden !important; 
           position: relative !important;
         }
 
@@ -60,24 +98,12 @@
           width: 100% !important;
         }
 
-        /* 5. Handle the columns correctly in print */
+        /* 5. Handle the 3 columns in print */
         .grid {
           display: grid !important;
-          grid-template-columns: repeat(2, 1fr) !important;
-          gap: 2.5rem !important;
+          grid-template-columns: repeat(3, 1fr) !important;
+          gap: 1.5rem !important;
         }
-      }
-
-      /* Screen View styling */
-      .a4-page {
-        width: 210mm;
-        min-height: 297mm;
-        padding: 20mm;
-        margin: 10px auto;
-        background: white;
-        box-shadow: 0 0 10px rgba(0,0,0,0.1);
-        position: relative;
-        overflow: hidden;
       }
     </style>
 
