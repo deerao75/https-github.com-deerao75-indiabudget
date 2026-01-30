@@ -3,6 +3,13 @@ import { PageWrapper } from './components/PageWrapper';
 import { DetailSection } from './components/DetailSection';
 import { BudgetContent, TaxSection, TaxItem } from './types';
 import { BUDGET_TITLE, COMPANY_NAME } from './constants';
+import { createClient } from '@supabase/supabase-js';
+
+// --- SUPABASE SETUP ---
+// Replace these with your actual Supabase URL and Anon Key from Project Settings
+const SUPABASE_URL = 'https://aabdihvchgcfnsnenigc.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFhYmRpaHZjaGdjZm5zbmVuaWdjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njk3NTMyOTcsImV4cCI6MjA4NTMyOTI5N30.YBPJUKOoswQSuGV5FkJIyl5hDojwCXBwDpdZMNjMXNo';
+const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 const INITIAL_CONTENT: BudgetContent = {
   mainSummary: "The Union Budget 2026-27 and the preceding Economic Survey present a robust roadmap for India's transition toward a 'Viksit Bharat'. The survey highlights a resilient GDP growth projection of 7%, anchored by strong domestic demand, a surge in high-tech manufacturing, and significant improvements in digital public infrastructure. This fiscal strategy strikes a critical balance between necessary fiscal consolidation and aggressive capital expenditure to ensure long-term sustainability.\n\nFurthermore, the budget places a significant thrust on the green energy transition and human capital development. For the individual taxpayer, the rationalization of tax slabs under the new regime offers a tangible increase in disposable income, while the corporate sector benefits from extended manufacturing incentives. This bulletin provides a consolidated analysis of the Economic Survey observations alongside detailed Direct and Indirect Tax proposals to provide a 360-degree view of the current fiscal landscape.",
@@ -48,35 +55,68 @@ const App: React.FC = () => {
     return pages;
   };
 
-useEffect(() => {
-    // 1. Always fetch latest data first
-    const savedData = localStorage.getItem('acer_budget_master');
-    const savedTime = localStorage.getItem('acer_budget_time');
-    if (savedData) setContent(JSON.parse(savedData));
-    if (savedTime) setLastSaved(savedTime);
+  useEffect(() => {
+    const fetchCloudData = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('budget_data')
+          .select('content, updated_at')
+          .eq('id', 1)
+          .single();
 
-    // 2. Handle User View - Check URL params directly
+        if (error) throw error;
+        
+        // VALIDATION: Only update if the data from Supabase actually has our budget structure
+        if (data && data.content && data.content.mainSummary) {
+          setContent(data.content);
+          setLastSaved(data.updated_at);
+        } else {
+          console.log("Cloud content is empty or invalid, keeping INITIAL_CONTENT");
+        }
+      } catch (err) {
+        console.error("Supabase load error:", err);
+        const savedData = localStorage.getItem('acer_budget_master');
+        if (savedData) setContent(JSON.parse(savedData));
+      }
+    };
+
+    fetchCloudData();
+
     const params = new URLSearchParams(window.location.search);
     if (params.get('view') === 'user') {
       setActiveTab('preview');
       document.title = "Economic Survey and India Budget 2026-27";
-      // REMOVED window.history.replaceState to ensure the link stays as 'user' on refresh
     }
-  }, []); // Only run once on mount
+  }, []);
 
-  const handleSaveToCloud = () => {
+  const handleSaveToCloud = async () => {
     setIsSaving(true);
     const now = new Date().toLocaleString('en-IN', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
     
-    // Save to LocalStorage immediately
-    localStorage.setItem('acer_budget_master', JSON.stringify(content));
-    localStorage.setItem('acer_budget_time', now);
-    
-    setTimeout(() => {
+    try {
+      // Save to Supabase (Global Storage)
+      const { error } = await supabase
+        .from('budget_data')
+        .update({ 
+          content: content, 
+          updated_at: now 
+        })
+        .eq('id', 1);
+
+      if (error) throw error;
+
+      // Keep local backup
+      localStorage.setItem('acer_budget_master', JSON.stringify(content));
+      localStorage.setItem('acer_budget_time', now);
+      
       setLastSaved(now);
+      alert("Published Successfully. Client link and all admins are now synced.");
+    } catch (err) {
+      console.error("Save error:", err);
+      alert("Error saving to cloud. Please check your connection.");
+    } finally {
       setIsSaving(false);
-      alert("Published Successfully. Client link will now show this content.");
-    }, 800);
+    }
   };
 
   const copyClientLink = () => {
@@ -84,7 +124,6 @@ useEffect(() => {
     const linkText = "Economic Survey and India Budget Alert 2026-27";
     const htmlLink = `<a href="${userLink}" style="color: #2563eb; text-decoration: underline;">${linkText}</a>`;
     
-    // We use a try-catch to prevent TypeScript environment crashes with ClipboardItem
     try {
       const data = [
         new ClipboardItem({
@@ -94,7 +133,6 @@ useEffect(() => {
       ];
       navigator.clipboard.write(data).then(() => alert("Client Link Copied!"));
     } catch (err) {
-      // Fallback if ClipboardItem fails in certain browsers/environments
       navigator.clipboard.writeText(userLink).then(() => alert("Client URL Copied!"));
     }
   };
@@ -131,7 +169,6 @@ useEffect(() => {
     }));
   };
 
-  // NEW: Delete Item Function
   const deleteItem = (section: keyof Omit<BudgetContent, 'mainSummary'>, itemId: string) => {
     if (window.confirm("Are you sure you want to delete this block?")) {
       setContent(prev => ({
@@ -191,7 +228,6 @@ useEffect(() => {
                 <div className="space-y-4">
                   {content[section].items.map((item) => (
                     <div key={item.id} className="relative p-4 bg-slate-50 border rounded-xl space-y-2 group">
-                      {/* DELETE BUTTON */}
                       <button 
                         onClick={() => deleteItem(section, item.id)}
                         className="absolute top-2 right-2 text-slate-300 hover:text-red-500 text-[10px] font-bold uppercase tracking-tighter opacity-0 group-hover:opacity-100 transition-opacity px-2 py-1 bg-white border rounded shadow-sm"
