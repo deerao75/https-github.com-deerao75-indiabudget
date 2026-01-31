@@ -18,6 +18,16 @@
         font-family: 'Playfair Display', serif;
       }
 
+      /* GLOBAL JUSTIFICATION: Active on both Web and Mobile */
+      p, .text-justify, 
+      .BudgetContent p, 
+      main p,
+      .DetailSection div {
+        text-align: justify !important;
+        text-justify: inter-word; /* Distributes space evenly between words */
+        hyphens: auto; /* Prevents large white gaps on narrow mobile screens */
+      }
+
       /* Responsive Screen View styling */
       .a4-page {
         width: 100%; /* Default to full width for mobile */
@@ -44,7 +54,6 @@
 
       /* Mobile-specific Fixes */
       @media (max-width: 767px) {
-        /* Fix the header alignment from your screenshots */
         .a4-page header {
           flex-direction: column !important;
           align-items: center !important;
@@ -70,9 +79,9 @@
           text-align: center !important;
         }
 
-        /* Ensure the Executive Summary fits */
-        .text-justify {
-          text-align: left !important; /* Justified text looks broken on narrow mobile screens */
+        /* Ensure justification remains forced on mobile */
+        .text-justify, p {
+          text-align: justify !important;
         }
       }
 
@@ -110,19 +119,19 @@
       }
     </style>
 
-  <script type="importmap">
-{
-  "imports": {
-    "react-dom/": "https://esm.sh/react-dom@^19.2.4/",
-    "@google/genai": "https://esm.sh/@google/genai@^1.38.0",
-    "react/": "https://esm.sh/react@^19.2.4/",
-    "react": "https://esm.sh/react@^19.2.4"
-  }
-}
-</script>
-  <script type="module" crossorigin src="/indiabudgetnew/assets/index-BhcBnOEb.js"></script>
-</head>
+    <script type="importmap">
+    {
+      "imports": {
+        "react-dom/": "https://esm.sh/react-dom@^19.2.4/",
+        "@google/genai": "https://esm.sh/@google/genai@^1.38.0",
+        "react/": "https://esm.sh/react@^19.2.4/",
+        "react": "https://esm.sh/react@^19.2.4"
+      }
+    }
+    </script>
+    <script type="module" crossorigin src="/indiabudgetnew/assets/index-7Nh_uGFm.js"></script>
+  </head>
   <body>
     <div id="root"></div>
-</body>
+  </body>
 </html>
