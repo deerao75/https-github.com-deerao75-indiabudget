@@ -6,7 +6,6 @@ import { BUDGET_TITLE, COMPANY_NAME } from './constants';
 import { createClient } from '@supabase/supabase-js';
 
 // --- SUPABASE SETUP ---
-// Replace these with your actual Supabase URL and Anon Key from Project Settings
 const SUPABASE_URL = 'https://aabdihvchgcfnsnenigc.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFhYmRpaHZjaGdjZm5zbmVuaWdjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njk3NTMyOTcsImV4cCI6MjA4NTMyOTI5N30.YBPJUKOoswQSuGV5FkJIyl5hDojwCXBwDpdZMNjMXNo';
 const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
@@ -66,7 +65,6 @@ const App: React.FC = () => {
 
         if (error) throw error;
         
-        // VALIDATION: Only update if the data from Supabase actually has our budget structure
         if (data && data.content && data.content.mainSummary) {
           setContent(data.content);
           setLastSaved(data.updated_at);
@@ -94,7 +92,6 @@ const App: React.FC = () => {
     const now = new Date().toLocaleString('en-IN', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
     
     try {
-      // Save to Supabase (Global Storage)
       const { error } = await supabase
         .from('budget_data')
         .update({ 
@@ -105,7 +102,6 @@ const App: React.FC = () => {
 
       if (error) throw error;
 
-      // Keep local backup
       localStorage.setItem('acer_budget_master', JSON.stringify(content));
       localStorage.setItem('acer_budget_time', now);
       
@@ -188,29 +184,30 @@ const App: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-slate-100">
-      <nav className="no-print sticky top-0 z-50 bg-white border-b border-slate-200 px-8 py-4 flex justify-between items-center shadow-md">
-        <div className="flex items-center gap-6">
-          <div>
-            <h1 className="text-xl font-bold text-slate-800 tracking-tight uppercase">{COMPANY_NAME}</h1>
-            <p className="text-[10px] text-slate-400 uppercase tracking-widest font-bold mt-1">Economic Survey & Budget Alert</p>
+      {/* RESPONSIVE NAV: Stacks on mobile, flows row on desktop */}
+      <nav className="no-print sticky top-0 z-50 bg-white border-b border-slate-200 px-4 md:px-8 py-4 flex flex-col md:flex-row justify-between items-center shadow-md gap-4 md:gap-0">
+        <div className="flex items-center gap-4 md:gap-6">
+          <div className="text-center md:text-left">
+            <h1 className="text-lg md:text-xl font-bold text-slate-800 tracking-tight uppercase">{COMPANY_NAME}</h1>
+            <p className="text-[9px] md:text-[10px] text-slate-400 uppercase tracking-widest font-bold mt-1">Economic Survey & Budget Alert</p>
           </div>
           {!isUserView && (
-            <button onClick={copyClientLink} className="text-[10px] bg-slate-100 px-3 py-1 rounded-full font-bold text-slate-500 hover:bg-slate-200">🔗 Copy Hyperlink</button>
+            <button onClick={copyClientLink} className="text-[10px] bg-slate-100 px-3 py-1 rounded-full font-bold text-slate-500 hover:bg-slate-200">🔗 Link</button>
           )}
         </div>
-        <div className="flex items-center gap-4">
+        <div className="flex flex-wrap items-center justify-center gap-3 md:gap-4">
           {!isUserView && (
             <div className="flex bg-slate-100 p-1 rounded-xl">
-              <button onClick={() => setActiveTab('preview')} className={`px-6 py-2 text-xs font-bold rounded-lg ${activeTab === 'preview' ? 'bg-white shadow-sm' : ''}`}>Preview</button>
-              <button onClick={() => setActiveTab('edit')} className={`px-6 py-2 text-xs font-bold rounded-lg ${activeTab === 'edit' ? 'bg-white shadow-sm' : ''}`}>Edit</button>
+              <button onClick={() => setActiveTab('preview')} className={`px-4 md:px-6 py-2 text-xs font-bold rounded-lg ${activeTab === 'preview' ? 'bg-white shadow-sm' : ''}`}>Preview</button>
+              <button onClick={() => setActiveTab('edit')} className={`px-4 md:px-6 py-2 text-xs font-bold rounded-lg ${activeTab === 'edit' ? 'bg-white shadow-sm' : ''}`}>Edit</button>
             </div>
           )}
           {!isUserView && (
-            <button onClick={handleSaveToCloud} disabled={isSaving} className={`px-6 py-2.5 rounded-xl text-sm font-bold border-2 ${isSaving ? 'border-slate-200 text-slate-300' : 'border-emerald-500 text-emerald-600'}`}>
-              {isSaving ? 'Syncing...' : 'Save & Publish'}
+            <button onClick={handleSaveToCloud} disabled={isSaving} className={`px-4 md:px-6 py-2.5 rounded-xl text-sm font-bold border-2 ${isSaving ? 'border-slate-200 text-slate-300' : 'border-emerald-500 text-emerald-600'}`}>
+              {isSaving ? 'Syncing...' : 'Publish'}
             </button>
           )}
-          {lastSaved && <span className="text-[9px] text-slate-400 font-bold uppercase">UPDATED: {lastSaved}</span>}
+          {lastSaved && <span className="text-[8px] md:text-[9px] text-slate-400 font-bold uppercase">UPDATED: {lastSaved}</span>}
         </div>
       </nav>
 
@@ -245,47 +242,49 @@ const App: React.FC = () => {
           </div>
         </div>
       ) : (
-        <div className="flex flex-col items-center py-8">
+        <div className="flex flex-col items-center py-4 md:py-8">
           <PageWrapper pageNumber={globalPageCount++}>
-            <div className="relative w-full h-[240px] mb-8 overflow-hidden rounded-[40px] shadow-lg">
+            {/* HERO IMAGE: Adjust border radius and text size for mobile */}
+            <div className="relative w-full h-[180px] md:h-[240px] mb-6 md:mb-8 overflow-hidden rounded-[24px] md:rounded-[40px] shadow-lg">
               <img 
                 src="https://images.unsplash.com/photo-1548013146-72479768bada?q=80&w=1200&auto=format&fit=crop" 
                 className="w-full h-full object-cover brightness-[0.45]" 
                 alt="Ministry of Finance India" 
               />
-              <div className="absolute inset-0 flex flex-col items-center justify-center text-center p-6">
-                 <div className="px-8 py-6 border border-white/20 backdrop-blur-lg rounded-[32px]">
-                    <h2 className="text-white text-3xl font-serif leading-tight">Economic Survey and<br/>India Budget 2026-27</h2>
-                    <p className="text-white/60 text-[9px] uppercase tracking-[0.4em] mt-3 font-bold">Strategic Insight Bulletin</p>
+              <div className="absolute inset-0 flex flex-col items-center justify-center text-center p-4">
+                 <div className="px-4 py-4 md:px-8 md:py-6 border border-white/20 backdrop-blur-lg rounded-[24px] md:rounded-[32px]">
+                    <h2 className="text-white text-xl md:text-3xl font-serif leading-tight">Economic Survey and<br className="hidden md:block"/>India Budget 2026-27</h2>
+                    <p className="text-white/60 text-[7px] md:text-[9px] uppercase tracking-[0.4em] mt-3 font-bold">Strategic Insight Bulletin</p>
                  </div>
               </div>
             </div>
 
-            <div className="mb-8">
-              <h3 className="text-sm font-black text-slate-900 border-l-[5px] border-slate-900 pl-4 mb-3 uppercase tracking-widest">Executive Summary</h3>
-              <div className="text-[13px] leading-[1.7] text-slate-700 italic text-justify px-2 whitespace-pre-wrap">
+            <div className="mb-6 md:mb-8">
+              <h3 className="text-xs md:text-sm font-black text-slate-900 border-l-[5px] border-slate-900 pl-4 mb-3 uppercase tracking-widest">Executive Summary</h3>
+              <div className="text-[12px] md:text-[13px] leading-[1.7] text-slate-700 italic text-justify px-2 whitespace-pre-wrap">
                 {content.mainSummary}
               </div>
             </div>
 
-            <div className="grid grid-cols-3 gap-5">
+            {/* DASHBOARD GRID: Stack vertically (1 col) on mobile, 3 cols on desktop */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-5">
               {(['economicSurvey', 'directTax', 'indirectTax'] as const).map((key) => (
                 <button 
                   key={key} 
                   onClick={() => scrollToSection(`${key}-page`)} 
-                  className="relative group text-left p-6 border border-slate-100 rounded-[35px] bg-white shadow-sm hover:shadow-2xl hover:border-slate-900 transition-all flex flex-col items-center h-full"
+                  className="relative group text-left p-4 md:p-6 border border-slate-100 rounded-[24px] md:rounded-[35px] bg-white shadow-sm hover:shadow-2xl hover:border-slate-900 transition-all flex flex-col items-center h-full"
                 >
-                  <h4 className="font-bold text-sm text-slate-900 font-serif mb-4 text-center w-[120px] leading-tight min-h-[40px] flex items-center justify-center">
+                  <h4 className="font-bold text-xs md:text-sm text-slate-900 font-serif mb-4 text-center w-full leading-tight min-h-[30px] md:min-h-[40px] flex items-center justify-center">
                     {content[key].title}
                   </h4>
-                  <div className="w-full h-24 overflow-hidden rounded-2xl mb-4 bg-slate-100">
+                  <div className="w-full h-20 md:h-24 overflow-hidden rounded-xl md:rounded-2xl mb-4 bg-slate-100">
                     <img 
                       src={key === 'economicSurvey' ? 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=400&auto=format&fit=crop' : key === 'directTax' ? 'https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?q=80&w=400&auto=format&fit=crop' : 'https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?q=80&w=400&auto=format&fit=crop'} 
                       className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" 
                       alt="Section focus" 
                     />
                   </div>
-                  <p className="text-[9px] text-slate-500 font-medium leading-relaxed text-center">
+                  <p className="text-[8px] md:text-[9px] text-slate-500 font-medium leading-relaxed text-center">
                     {content[key].summary}
                   </p>
                 </button>
@@ -305,35 +304,33 @@ const App: React.FC = () => {
                 <PageWrapper pageNumber={globalPageCount++}>
                   <div className="flex flex-col h-full">
                     <div className="flex justify-between items-center mb-6 no-print">
-                      <button onClick={scrollToTop} className="text-[9px] font-bold text-slate-400 hover:text-slate-900 tracking-[0.2em] uppercase transition-colors">↑ Back to Dashboard</button>
+                      <button onClick={scrollToTop} className="text-[8px] md:text-[9px] font-bold text-slate-400 hover:text-slate-900 tracking-[0.2em] uppercase transition-colors">↑ Back to Top</button>
                     </div>
                     
                     {pageIdx === 0 && (
-                      <div className="mb-10 border-b-2 border-slate-900 pb-3">
-                        <h2 className="text-3xl font-serif font-bold text-slate-900">{content[sectionKey].title}</h2>
+                      <div className="mb-6 md:mb-10 border-b-2 border-slate-900 pb-3">
+                        <h2 className="text-2xl md:text-3xl font-serif font-bold text-slate-900">{content[sectionKey].title}</h2>
                       </div>
                     )}
 
                     <DetailSection items={pageItems} />
 
-                    <div className="mt-auto pt-10 border-t border-slate-100 flex flex-col gap-4">
+                    <div className="mt-auto pt-8 md:pt-10 border-t border-slate-100 flex flex-col gap-4">
                       {pageIdx < paginatedItems.length - 1 ? (
-                        <p className="text-[10px] uppercase tracking-[0.3em] text-slate-400 italic font-bold text-center">
-                          ( {content[sectionKey].title} continued on next page... )
+                        <p className="text-[8px] md:text-[10px] uppercase tracking-[0.3em] text-slate-400 italic font-bold text-center">
+                          ( {content[sectionKey].title} continued... )
                         </p>
                       ) : (
-                        <p className="text-[10px] uppercase tracking-[0.3em] text-slate-800 italic font-black text-center">
-                          ( End of {content[sectionKey].title} Observations )
+                        <p className="text-[8px] md:text-[10px] uppercase tracking-[0.3em] text-slate-800 italic font-black text-center">
+                          ( End of {content[sectionKey].title} )
                         </p>
                       )}
 
                       {sectionKey === 'indirectTax' && pageIdx === paginatedItems.length - 1 && (
-                        <p className="text-[8px] leading-relaxed text-slate-400 text-justify italic mt-4">
-                          <strong>Disclaimer:</strong> This bulletin has been prepared by {COMPANY_NAME} for general information purposes only and does not constitute professional advice. 
-                          While every effort has been made to ensure the accuracy of the information based on the Union Budget 2026-27 and Economic Survey 
-                          presentations, tax laws are subject to change and varied interpretations. Readers are advised to consult with a qualified 
-                          tax professional before taking any action based on the content of this alert. {COMPANY_NAME} accepts no liability for 
-                          any loss arising from the use of this information.
+                        <p className="text-[7px] md:text-[8px] leading-relaxed text-slate-400 text-justify italic mt-4">
+                          <strong>Disclaimer:</strong> This bulletin has been prepared by {COMPANY_NAME} for general information purposes only. 
+                          While every effort has been made to ensure accuracy based on the Union Budget 2026-27, tax laws are subject to change. 
+                          Consult with a tax professional before taking action. {COMPANY_NAME} accepts no liability for loss arising from the use of this information.
                         </p>
                       )}
                     </div>
