@@ -260,12 +260,6 @@ const App: React.FC = () => {
                     <br className="md:hidden" /> 
                     <span className="inline-block md:ml-2">India Budget 2026-27</span>
                   </h2>
-                  
-                  {/* 'w-full' ensures the text takes the full width available to align center */}
-                  <p className="w-full text-white/60 text-[8px] md:text-[9px] uppercase tracking-[0.4em] mt-3 font-bold text-center">
-                    Strategic Insight Bulletin
-                  </p>
-                  
                 </div>
               </div>
             </div>
