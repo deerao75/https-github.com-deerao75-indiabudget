@@ -251,16 +251,22 @@ const App: React.FC = () => {
                 className="w-full h-full object-cover brightness-[0.45]" 
                 alt="Ministry of Finance India" 
               />
-              <div className="absolute inset-0 flex flex-col items-center justify-center text-center p-4">
-                 <div className="px-4 py-4 md:px-8 md:py-6 border border-white/20 backdrop-blur-lg rounded-[24px] md:rounded-[32px]">
-                  <h2 className="text-white text-xl md:text-3xl font-serif leading-tight text-center">
-                    {/* Added a space after 'and' and a responsive break */}
-                    Economic Survey and <br className="md:hidden" /> India Budget 2026-27
+              <div className="absolute inset-0 flex flex-col items-center justify-center p-4">
+                {/* The 'items-center' class here is the key for desktop centering */}
+                <div className="px-4 py-4 md:px-8 md:py-6 border border-white/20 backdrop-blur-lg rounded-[24px] md:rounded-[32px] flex flex-col items-center text-center">
+                  
+                  <h2 className="text-white text-xl md:text-3xl font-serif leading-tight text-center px-2">
+                    <span className="inline-block">Economic Survey and</span>
+                    <br className="md:hidden" /> 
+                    <span className="inline-block md:ml-2">India Budget 2026-27</span>
                   </h2>
-                  <p className="text-white/60 text-[8px] md:text-[9px] uppercase tracking-[0.4em] mt-3 font-bold text-center">
+                  
+                  {/* 'w-full' ensures the text takes the full width available to align center */}
+                  <p className="w-full text-white/60 text-[8px] md:text-[9px] uppercase tracking-[0.4em] mt-3 font-bold text-center">
                     Strategic Insight Bulletin
                   </p>
-                 </div>
+                  
+                </div>
               </div>
             </div>
 

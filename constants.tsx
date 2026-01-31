@@ -13,18 +13,20 @@ export const Logo: React.FC = () => {
         <img 
           src={LOGO_URL} 
           alt="Acer Logo" 
-          /* Set to a consistent size that doesn't overwhelm the text */
-          className="w-20 h-auto object-contain" 
+          /* Centering adjustment for mobile when text is hidden */
+          className="w-20 h-auto object-contain mx-auto md:mx-0" 
           onError={() => setImgError(true)}
         />
       ) : (
-        <div className="w-12 h-12 bg-slate-900 flex items-center justify-center rounded text-white font-bold text-xl">
+        <div className="w-12 h-12 bg-slate-900 flex items-center justify-center rounded text-white font-bold text-xl mx-auto md:mx-0">
           A
         </div>
       )}
       
-      <div className="flex flex-col justify-center border-l border-slate-200 pl-4">
-        {/* Reduced font size from text-xl to text-base/lg for better balance */}
+      {/* - hidden: Hides the text container by default (Mobile)
+          - md:flex: Restores the display for medium screens and above (Desktop)
+      */}
+      <div className="hidden md:flex flex-col justify-center border-l border-slate-200 pl-4">
         <h1 className="text-slate-900 font-extrabold text-base tracking-tight leading-none uppercase whitespace-nowrap">
           {COMPANY_NAME}
         </h1>
