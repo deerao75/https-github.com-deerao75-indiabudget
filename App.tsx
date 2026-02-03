@@ -20,7 +20,6 @@ const INITIAL_CONTENT: BudgetContent = {
       { id: 'es2', title: 'Capital Formation', content: 'Private sector capital formation has seen a 20% uptick, signaling renewed corporate confidence and a shift from public-led to private-led investment cycles.' }
     ]
   },
-  /* NEW SECTION: KEY BUDGET HIGHLIGHTS */
   keyHighlights: {
     title: "Key Budget Highlights",
     summary: "Major announcements regarding infrastructure, social welfare, and fiscal targets for the upcoming year.",
@@ -53,7 +52,13 @@ const App: React.FC = () => {
   const [isSaving, setIsSaving] = useState(false);
   const [lastSaved, setLastSaved] = useState<string>("");
   
-  const isUserView = new URLSearchParams(window.location.search).get('view') === 'user';
+  // Passcode states
+  const [passcodeInput, setPasscodeInput] = useState<string>("");
+  const [isUnlocked, setIsUnlocked] = useState(false);
+
+  const params = new URLSearchParams(window.location.search);
+  const isAdmin = params.get('view') === 'admin';
+  const isUserView = params.get('view') === 'user';
 
   const paginateItems = (items: TaxItem[], limit: number = 10) => {
     const pages = [];
@@ -75,8 +80,6 @@ const App: React.FC = () => {
         if (error) throw error;
         
         if (data && data.content && data.content.mainSummary) {
-          // We merge the cloud data with INITIAL_CONTENT to ensure 
-          // 'keyHighlights' exists even if the database is old
           setContent({
             ...INITIAL_CONTENT,
             ...data.content
@@ -92,12 +95,11 @@ const App: React.FC = () => {
 
     fetchCloudData();
 
-    const params = new URLSearchParams(window.location.search);
-    if (params.get('view') === 'user') {
+    if (isUserView) {
       setActiveTab('preview');
       document.title = "Economic Survey and India Budget 2026-27";
     }
-  }, []);
+  }, [isUserView]);
 
   const handleSaveToCloud = async () => {
     setIsSaving(true);
@@ -206,29 +208,43 @@ const App: React.FC = () => {
           )}
         </div>
         <div className="flex flex-wrap items-center justify-center gap-3 md:gap-4">
-          {!isUserView && (
-            <div className="flex bg-slate-100 p-1 rounded-xl">
-              <button onClick={() => setActiveTab('preview')} className={`px-4 md:px-6 py-2 text-xs font-bold rounded-lg ${activeTab === 'preview' ? 'bg-white shadow-sm' : ''}`}>Preview</button>
-              <button onClick={() => setActiveTab('edit')} className={`px-4 md:px-6 py-2 text-xs font-bold rounded-lg ${activeTab === 'edit' ? 'bg-white shadow-sm' : ''}`}>Edit</button>
-            </div>
-          )}
-          {!isUserView && (
-            <button onClick={handleSaveToCloud} disabled={isSaving} className={`px-4 md:px-6 py-2.5 rounded-xl text-sm font-bold border-2 ${isSaving ? 'border-slate-200 text-slate-300' : 'border-emerald-500 text-emerald-600'}`}>
-              {isSaving ? 'Syncing...' : 'Publish'}
-            </button>
+          {isAdmin && (
+            <>
+              {!isUnlocked ? (
+                <input 
+                  type="password" 
+                  placeholder="Enter Passcode" 
+                  className="px-3 py-2 text-xs border rounded-lg focus:outline-none focus:ring-1 focus:ring-slate-400"
+                  value={passcodeInput}
+                  onChange={(e) => {
+                    setPasscodeInput(e.target.value);
+                    if (e.target.value === "1234") setIsUnlocked(true);
+                  }}
+                />
+              ) : (
+                <>
+                  <div className="flex bg-slate-100 p-1 rounded-xl">
+                    <button onClick={() => setActiveTab('preview')} className={`px-4 md:px-6 py-2 text-xs font-bold rounded-lg ${activeTab === 'preview' ? 'bg-white shadow-sm' : ''}`}>Preview</button>
+                    <button onClick={() => setActiveTab('edit')} className={`px-4 md:px-6 py-2 text-xs font-bold rounded-lg ${activeTab === 'edit' ? 'bg-white shadow-sm' : ''}`}>Edit</button>
+                  </div>
+                  <button onClick={handleSaveToCloud} disabled={isSaving} className={`px-4 md:px-6 py-2.5 rounded-xl text-sm font-bold border-2 ${isSaving ? 'border-slate-200 text-slate-300' : 'border-emerald-500 text-emerald-600'}`}>
+                    {isSaving ? 'Syncing...' : 'Publish'}
+                  </button>
+                </>
+              )}
+            </>
           )}
           {lastSaved && <span className="text-[8px] md:text-[9px] text-slate-400 font-bold uppercase">UPDATED: {lastSaved}</span>}
         </div>
       </nav>
 
-      {activeTab === 'edit' ? (
+      {activeTab === 'edit' && isAdmin && isUnlocked ? (
         <div className="max-w-6xl mx-auto py-12 px-6">
           <div className="bg-white p-10 rounded-2xl shadow-sm space-y-12">
             <section>
               <h2 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-4">Master Executive Summary</h2>
               <textarea className="w-full p-4 border rounded-xl text-sm min-h-[150px]" value={content.mainSummary} onChange={(e) => updateMainSummary(e.target.value)} />
             </section>
-            {/* INCLUDES NEW SECTION IN EDIT FLOW */}
             {(['economicSurvey', 'keyHighlights', 'directTax', 'indirectTax'] as const).map((section) => (
               <section key={section} className="space-y-6 border-t pt-8">
                 <h2 className="text-sm font-black text-slate-600 uppercase tracking-widest">{section.replace(/([A-Z])/g, ' $1')}</h2>
@@ -270,7 +286,6 @@ const App: React.FC = () => {
               </div>
             </div>
 
-            {/* UPDATED GRID: Fixed casing and justification */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-5">
               {(['economicSurvey', 'keyHighlights', 'directTax', 'indirectTax'] as const).map((key) => (
                 <button 
@@ -278,20 +293,12 @@ const App: React.FC = () => {
                   onClick={() => scrollToSection(`${key}-page`)} 
                   className="relative group text-left p-4 md:p-6 border border-slate-100 rounded-[24px] md:rounded-[35px] bg-white shadow-sm hover:shadow-2xl hover:border-slate-900 transition-all flex flex-col items-center h-full"
                 >
-                  {/* Heading: Removed 'uppercase' to allow standard capitalization */}
                   <h4 className="font-bold text-[10px] md:text-[11px] text-slate-900 font-serif mb-4 text-center w-full leading-tight min-h-[30px] flex items-center justify-center">
                     {content[key].title}
                   </h4>
-
                   <div className="w-full h-16 md:h-20 overflow-hidden rounded-xl bg-slate-100 mb-4">
-                    <img 
-                      src={key === 'economicSurvey' ? 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=400' : key === 'keyHighlights' ? 'https://images.unsplash.com/photo-1543286386-713bdd548da4?q=80&w=400' : key === 'directTax' ? 'https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?q=80&w=400' : 'https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?q=80&w=400'} 
-                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" 
-                      alt="Section focus" 
-                    />
+                    <img src={key === 'economicSurvey' ? 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=400' : key === 'keyHighlights' ? 'https://images.unsplash.com/photo-1543286386-713bdd548da4?q=80&w=400' : key === 'directTax' ? 'https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?q=80&w=400' : 'https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?q=80&w=400'} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" alt="Section focus" />
                   </div>
-
-                  {/* Summary: Removed 'uppercase' and 'tracking-tighter', added 'text-justify' */}
                   <p className="text-[8px] md:text-[9px] text-slate-500 font-medium leading-relaxed text-justify px-1">
                     {content[key].summary}
                   </p>
@@ -300,7 +307,6 @@ const App: React.FC = () => {
             </div>
           </PageWrapper>
 
-          {/* DYNAMIC RENDERING FOR ALL SECTIONS */}
           {(['economicSurvey', 'keyHighlights', 'directTax', 'indirectTax'] as const).map((sectionKey) => {
             const paginatedItems = paginateItems(content[sectionKey].items);
             return paginatedItems.map((pageItems, pageIdx) => (
